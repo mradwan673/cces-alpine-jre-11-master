@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11.0.1-jdk
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image With Build Number
+          command: docker build -t gstatsdev.com/cces-alpine-jre-11:$CIRCLE_BUILD_NUM .
+      - run:
+          name: Build Docker Image With Latest and Build Number
+          command: docker tag gstatsdev.com/cces-alpine-jre-11:$CIRCLE_BUILD_NUM ccesdev.com/cces-alpine-jre-11:latest
+      - run:
+          name: Login to Docker Private Registry
+          command: docker login -u $NEXUS_DO_USER -p $NEXUS_DO_PASSWORD gstatsdev.com
+      - run:
+          name: Push Docker Image to Private Registry
+          command: docker push gstatsdev.com/cces-alpine-jre-11:$CIRCLE_BUILD_NUM
+      - run:
+          name: Push Docker Image to Private Registry
+          command: docker push gstatsdev.com/cces-alpine-jre-11:latest
